@@ -1,0 +1,27 @@
+version: "3"
+services:
+  nutapp:
+    image: nutapp
+    build:
+      context: ./
+      dockerfile: nutapp.dockerfile
+    command: python3.8 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./:/code
+      - /code/.git
+    stdin_open: true
+    tty: true
+    depends_on:
+      - mysql
+    ports:
+      - 8000:8000
+    container_name: nutapp
+  mysql:
+    image: mariadb:10.4
+    volumes:
+      - ./create_databases:/docker-entrypoint-initdb.d
+    container_name: nutapp-mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - 3306
