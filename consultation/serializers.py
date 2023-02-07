@@ -17,7 +17,7 @@ class ConsultationPatientSerializer(ConsultationSerializer):
     professional = serializers.SerializerMethodField(read_only=True)
 
     def get_professional(self, instance):
-        professional = getattr(instance, "nutritionist", self.context.get("professional"))
+        professional = getattr(instance, "professional", self.context.get("professional"))
         if professional:
             return {
                 "name": str(professional),

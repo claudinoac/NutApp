@@ -11,6 +11,12 @@ class ConsultationService():
         pass
 
     def create_consultation(self, patient, professional, date_from, date_to):
+        if date_from >= date_to:
+            raise ConsultationError({
+                "error_code": "invalid_date_range",
+                "detail": "Hora de início da consulta não pode ser maior que data de finalização"
+            })
+
         if professional.consultation_set.filter(
             Q(date_from__lte=date_from, date_to__gte=date_from)
             | Q(date_from__gte=date_from, date_to__gte=date_to)
