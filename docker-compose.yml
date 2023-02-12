@@ -1,21 +1,42 @@
 version: "3"
 services:
-  nutapp:
-    image: nutapp
-    build:
-      context: ./
-      dockerfile: nutapp.dockerfile
-    command: python3.8 manage.py runserver 0.0.0.0:8000
+  nginx:
+    image: nginx
+    container_name: nutapp
+    ports:
+      - 7200:7200
     volumes:
-      - ./:/code
+      - ./utils/nginx:/etc/nginx/conf.d
+    depends_on:
+      - ui
+      - api
+  ui:
+    container_name: nutapp-ui
+    build:
+      context: ./ui
+      dockerfile: nutapp-ui.dockerfile
+    volumes:
+      - ./ui:/code
+      - /code/node_modules
+    ports:
+      - 7200
+    stdin_open: true
+    tty: true
+  api:
+    build:
+      context: ./api
+      dockerfile: nutapp.dockerfile
+    command: python3.8 manage.py runserver 0.0.0.0:7200
+    volumes:
+      - ./api:/code
       - /code/.git
     stdin_open: true
     tty: true
     depends_on:
       - mysql
     ports:
-      - 8000:8000
-    container_name: nutapp
+      - 7200
+    container_name: nutapp-api
   mysql:
     image: mariadb:10.4
     volumes:
@@ -24,4 +45,4 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
-      - 3306
+      - 3307:3306
