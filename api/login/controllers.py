@@ -1,6 +1,6 @@
 from rest_framework import status, response, views, permissions
 from login.serializers import LoginFormSerializer, UserSerializer
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from login.authentication import SessionAuthentication
 from rest_framework.authentication import TokenAuthentication
 
@@ -30,6 +30,12 @@ class LoginController(views.APIView):
             read_serializer = self.read_serializer_class(instance=request.user)
             return response.Response(data=read_serializer.data)
         return response.Response(data={'detail': 'Invalid Credentials.'}, status=status.HTTP_403_FORBIDDEN)
+
+
+class LogoutController(views.APIView):
+    def get(self, request):
+        logout(request)
+        return response.Response()
 
 
 class CurrentUserController(BaseLoggedInController, views.APIView):

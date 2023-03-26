@@ -15,7 +15,7 @@
             Hi, {{ userInfo.first_name }} {{ userInfo.last_name }}
         </q-toolbar-title>
 
-        <div>Logout</div>
+        <a href="#" @click="logout" style="text-decoration: none; color: white">Logout</a>
       </q-toolbar>
     </q-header>
 
@@ -25,6 +25,18 @@
       bordered
     >
       <q-list>
+        <template  v-for="(link, idx) in links" :key="idx">
+            <q-item
+                clickable
+                :to="link.to"
+                v-if="link.isAllowed(userInfo.account_type)"
+                v-ripple
+            >
+                <q-item-section>
+                    <div class="text-body1">{{ link.label }}</div>
+                </q-item-section>
+            </q-item>
+        </template>
       </q-list>
     </q-drawer>
 
@@ -44,6 +56,10 @@ export default defineComponent({
     data() {
         return {
             leftDrawerOpen: true,
+            links: [
+                { to: { name: 'list-meals' }, isAllowed: (accountType) => accountType === 'patient', label: 'My Meals' },
+                { to: { name: 'create-meal' }, isAllowed: (accountType) => accountType === 'patient', label: 'New Meal' },
+            ],
         };
     },
     computed: {
@@ -52,6 +68,10 @@ export default defineComponent({
     methods: {
         toggleLeftDrawer() {
             this.leftDrawerOpen = !this.leftDrawerOpen;
+        },
+        async logout() {
+            await this.$api.get('login/logout');
+            this.$router.push({ name: 'login' });
         },
     },
 });

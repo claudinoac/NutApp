@@ -59,3 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             if self.patient:
                 return 'patient'
         return 'unbound'
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"

@@ -1,17 +1,20 @@
+import DashboardRoutes from 'src/pages/dashboard/routes';
+import MealPlanRoutes from 'src/pages/meal_plan/routes';
+
 const routes = [
     {
         path: '/',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: 'nutritionist', name: 'nutritionist-home', component: () => import('pages/IndexPage.vue') },
-            { path: 'patient', name: 'patient-home', component: () => import('pages/IndexPage.vue') },
+            ...DashboardRoutes,
+            ...MealPlanRoutes,
         ],
     },
     {
         path: '/login',
         component: () => import('layouts/CleanLayout.vue'),
         children: [
-            { name: 'login', path: '', component: () => import('pages/Login.vue') },
+            { name: 'login', path: '', component: () => import('pages/login/index.vue') },
         ],
     },
 

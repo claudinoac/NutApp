@@ -1,3 +1,7 @@
 from django.contrib import admin
+from meal_plan.models import MealPlan, PlannedMeal, Meal
 
-# Register your models here.
+
+admin.site.register(MealPlan)
+admin.site.register(PlannedMeal)
+admin.site.register(Meal)

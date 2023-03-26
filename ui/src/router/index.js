@@ -22,8 +22,8 @@ router.beforeEach(async (to, from, next) => {  // eslint-disable-line
             return next({ name: 'login', query: { next: to.path } });
         }
     }
-    Loading.hide();
-    await next();
+    await Loading.hide();
+    next();
 });
 
 export default router;
