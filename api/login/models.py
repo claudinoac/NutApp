@@ -1,7 +1,10 @@
+import contextlib
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class UserManager(BaseUserManager):
@@ -45,3 +48,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    date_joined = models.DateField(auto_now_add=True, editable=False)
+
+    @property
+    def account_type(self):
+        with contextlib.suppress(ObjectDoesNotExist):
+            if self.nutritionist:
+                return 'nutritionist'
+        with contextlib.suppress(ObjectDoesNotExist):
+            if self.patient:
+                return 'patient'
+        return 'unbound'

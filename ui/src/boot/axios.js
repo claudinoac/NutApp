@@ -3,16 +3,46 @@ import axios from 'axios';
 
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
+import { Notify } from 'quasar';
+
 const api = axios.create({
     baseURL: '/api',
     headers: {
         'X-Requested-With': 'axios',
     },
 });
+
+api.interceptors.response.use(
+    (response) => {
+        const message = response.data?.detail;
+        if (message) {
+            Notify.create({
+                type: 'positive',
+                message,
+            });
+        }
+        return response;
+    },
+    async (error) => {
+        if (
+            (
+                error.response
+                && (error.response.status > 400 && error.response.status !== 404)
+            )
+            || (!error.response.config.ignore400 && error.response.status === 400)
+        ) {
+            const responseData = error.response.data;
+            const message = responseData.detail
+                || responseData.error
+                || 'Something went wrong. Please try again later.';
+            Notify.create({
+                type: 'negative',
+                message,
+            });
+        }
+        return error?.response || {};
+    },
+);
 
 export default boot(({ app }) => {
     // for use inside Vue files (Options API) through this.$axios and this.$api
