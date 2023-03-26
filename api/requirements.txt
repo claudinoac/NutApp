@@ -2,3 +2,6 @@ Django<4.2
 mysqlclient
 djangorestframework
 django-extensions
+django-polymorphic
+ipdb
+Pillow

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "patient",
     "consultation",
     "login",
+    "meal_plan",
 ]
 
 MIDDLEWARE = [

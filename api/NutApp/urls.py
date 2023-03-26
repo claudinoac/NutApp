@@ -24,5 +24,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     path('api/consultation/', include(('consultation.urls', 'consultation'), namespace='consultation_api')),
-    path('api/login', include(('login.urls', 'login'), namespace='login_api')),
+    path('api/login/', include(('login.urls', 'login'), namespace='login_api')),
+    path('api/', include(('meal_plan.urls', 'meal_plan'), namespace='meal_plan_api')),
 ]
