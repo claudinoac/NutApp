@@ -1,5 +1,6 @@
 import DashboardRoutes from 'src/pages/dashboard/routes';
 import MealPlanRoutes from 'src/pages/meal_plan/routes';
+import PatientRoutes from 'src/pages/patient/routes';
 
 const routes = [
     {
@@ -8,6 +9,7 @@ const routes = [
         children: [
             ...DashboardRoutes,
             ...MealPlanRoutes,
+            ...PatientRoutes,
         ],
     },
     {

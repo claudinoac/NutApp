@@ -28,4 +28,5 @@ urlpatterns = [
     path('api/consultation/', include(('consultation.urls', 'consultation'), namespace='consultation_api')),
     path('api/login/', include(('login.urls', 'login'), namespace='login_api')),
     path('api/', include(('meal_plan.urls', 'meal_plan'), namespace='meal_plan_api')),
+    path('api/', include(('patient.urls', 'patient'), namespace='patient_api')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

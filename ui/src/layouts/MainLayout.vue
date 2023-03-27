@@ -14,6 +14,18 @@
         <q-toolbar-title>
             Hi, {{ userInfo.first_name }} {{ userInfo.last_name }}
         </q-toolbar-title>
+        <div v-if="patientData" class="row items-center">
+            <div class="q-pr-md row">
+                <div class="q-px-sm">
+                    <b class="q-pr-xs">Current score:</b> {{ patientData.accumulated_score }}
+                </div>
+            </div>
+            <div class="q-pr-md row">
+                <div class="q-px-sm">
+                    <b class="q-pr-xs">Streak score:</b> {{ patientData.streak_score }}
+                </div>
+            </div>
+        </div>
 
         <a href="#" @click="logout" style="text-decoration: none; color: white">Logout</a>
       </q-toolbar>
@@ -59,13 +71,37 @@ export default defineComponent({
             links: [
                 { to: { name: 'list-meals' }, isAllowed: (accountType) => accountType === 'patient', label: 'My Meals' },
                 { to: { name: 'create-meal' }, isAllowed: (accountType) => accountType === 'patient', label: 'New Meal' },
+                { to: { name: 'list-patients' }, isAllowed: (accountType) => accountType === 'nutritionist', label: 'My Patients' },
+                {
+                    to: { name: 'list-patients-meals' },
+                    isAllowed: (accountType) => accountType === 'nutritionist',
+                    label: 'Patients Meals',
+                },
             ],
+            patientData: null,
         };
     },
     computed: {
         ...mapState(useLoginStore, ['userInfo']),
     },
+    watch: {
+        userInfo: {
+            deep: true,
+            immediate: true,
+            handler() {
+                this.getPatientInfo();
+            },
+        },
+    },
     methods: {
+        async getPatientInfo() {
+            if (this.userInfo.account_type === 'patient') {
+                const response = await this.$api.get('patient/profile');
+                if (response.status === 200) {
+                    this.patientData = response.data;
+                }
+            }
+        },
         toggleLeftDrawer() {
             this.leftDrawerOpen = !this.leftDrawerOpen;
         },

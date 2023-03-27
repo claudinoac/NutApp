@@ -15,13 +15,6 @@ class MealPlanSerializer(serializers.ModelSerializer):
         model = MealPlan
         fields = ['id', 'patient', 'comment', 'meals', 'date_created']
 
-    def validate_patient(self, patient):
-        if type(patient) == int:
-            patient = self.context['account'].patient_set.filter(id=patient).first()
-            if not patient:
-                raise serializers.ValidationError("Patient does not exist or is not assigned to you.")
-        return patient
-
     def get_meals(self, instance):
         return PlannedMealSerializer(instance.meals, many=True).data
 
@@ -47,7 +40,7 @@ class ExpandedMealListSerializer(MealListSerializer):
 
     class Meta:
         model = Meal
-        fields = ['patient', 'planned_meal', 'status', 'photo', 'items', 'time_created', 'feedback']
+        fields = ['id', 'patient', 'planned_meal', 'status', 'photo', 'items', 'time_created', 'feedback']
 
     def get_patient(self, instance):
         return {

@@ -6,9 +6,10 @@ from meal_plan.serializers import (
     MealListSerializer, MealFeedbackSerializer, ExpandedMealListSerializer
 )
 from meal_plan.models import MealPlan, PlannedMeal, Meal
-from meal_plan.services import MealService
+from meal_plan.services import MealService, MealPlanService
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.db.models import Q
 
 
 class MealPlanController(BaseNutritionistController, views.APIView):
@@ -26,7 +27,8 @@ class MealPlanController(BaseNutritionistController, views.APIView):
         )
         if not serializer.is_valid():
             return response.Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        new_meal_plan = MealPlan.objects.create(**serializer.validated_data, nutritionist=nutritionist)
+        service = MealPlanService()
+        new_meal_plan = service.create(**serializer.validated_data, nutritionist=nutritionist)
         return response.Response(
             data=self.serializer_class(instance=new_meal_plan).data,
             status=status.HTTP_201_CREATED
@@ -65,7 +67,8 @@ class PlannedMealController(BaseNutritionistController, views.APIView):
         serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
             return response.Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        new_planned_meal = PlannedMeal.objects.create(**serializer.validated_data, meal_plan=meal_plan)
+        service = MealPlanService()
+        new_planned_meal = service.create_planned_meal(**serializer.validated_data, meal_plan=meal_plan)
         return response.Response(
             data=self.serializer_class(instance=new_planned_meal).data,
             status=status.HTTP_201_CREATED
@@ -89,6 +92,9 @@ class MealController(BasePatientController, generics.ListAPIView):
             status=status.HTTP_201_CREATED
         )
 
+    def put(self, request):
+        pass
+
     def get_queryset(self):
         return Meal.objects.filter(patient=self.request.user.patient).order_by('-time_created')
 
@@ -97,7 +103,16 @@ class PatientsMealController(BaseNutritionistController, generics.ListAPIView):
     serializer_class = ExpandedMealListSerializer
 
     def get_queryset(self):
-        return Meal.objects.filter(patient__nutritionist=self.request.user.nutritionist)
+        query_filter = self.request.GET.get('q')
+        entries = Meal.objects.filter(
+            patient__nutritionist=self.request.user.nutritionist
+        ).order_by('-time_created')
+        if query_filter:
+            entries = entries.filter(Q(
+                patient__user__first_name__icontains=query_filter,
+                patient__user__last_name__icontains=query_filter,
+            ))
+        return entries
 
 
 class MealFeedbackController(BaseNutritionistController, generics.ListAPIView):

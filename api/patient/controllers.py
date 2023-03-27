@@ -1,6 +1,8 @@
 from login.controllers import BaseLoggedInController
-from rest_framework import permissions, response
-from patient.serializers import PatientProfileSerializer
+from rest_framework import permissions, response, views, generics
+from patient.serializers import PatientProfileSerializer, PatientSerializer
+from patient.models import Patient
+from nutritionist.controllers import BaseNutritionistController
 
 
 class PatientPermission(permissions.BasePermission):
@@ -15,9 +17,16 @@ class BasePatientController(BaseLoggedInController):
     ]
 
 
-class PatientProfileController(BasePatientController):
+class PatientProfileController(BasePatientController, views.APIView):
     serializer_class = PatientProfileSerializer
 
     def get(self, request):
         serializer = self.serializer_class(instance=request.user.patient)
         return response.Response(data=serializer.data)
+
+
+class PatientController(BaseNutritionistController, generics.ListAPIView):
+    serializer_class = PatientSerializer
+
+    def get_queryset(self):
+        return Patient.objects.filter(nutritionist=self.request.user.nutritionist)

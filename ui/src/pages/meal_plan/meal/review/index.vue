@@ -2,10 +2,10 @@
     <q-page class="review-meals-page">
         <div class="row justify-between q-pb-lg">
             <div class="text-h4">Patients meals</div>
-            <q-btn :to="{name: 'create-meal'}" color="blue" label="New Meal"/>
+            <search-field v-model="search" placeholder="Search user meals"/>
         </div>
         <div class="meals-list">
-            <q-list>
+            <q-list v-if="meals.length > 0">
                 <q-item v-for="(meal, index) in meals" :key="index">
                     <q-card>
                         <q-card-section>
@@ -60,18 +60,33 @@
                             </div>
                         </q-card-section>
                         <q-card-actions v-if="meal.status === 'pending_review'" class="justify-end">
-                            <q-btn color="red" label="reject"/>
-                            <q-btn color="positive" label="approve"/>
+                            <q-btn
+                                color="red" label="reject" @click="reviewMeal(meal.id, 'rejected')"
+                            />
+                            <q-btn
+                                color="positive" label="approve"
+                                @click="reviewMeal(meal.id, 'approved')"
+                            />
                         </q-card-actions>
                     </q-card>
                 </q-item>
             </q-list>
+            <q-card v-else>
+                <q-card-section>
+                    No matching records.
+                </q-card-section>
+            </q-card>
         </div>
     </q-page>
 </template>
 <script>
+import SearchField from 'src/components/search.vue';
+
 export default {
     name: 'list-patients-meals',
+    components: {
+        SearchField,
+    },
     data() {
         return {
             meals: [],
@@ -80,13 +95,49 @@ export default {
                 rejected: 'Rejected',
                 pending_review: 'Pending Review',
             },
+            search: '',
         };
     },
-    async created() {
-        const response = await this.$api.get('meals/patients');
-        if (response.status === 200) {
-            this.meals = response.data;
-        }
+    created() {
+        this.loadData();
+    },
+    watch: {
+        search() {
+            this.loadData(this.search);
+        },
+    },
+    methods: {
+        async loadData(searchData) {
+            const response = await this.$api.get('meals/patients', { params: { q: searchData } });
+            if (response.status === 200) {
+                this.meals = response.data;
+            }
+        },
+        async reviewMeal(mealId, value) {
+            const promptName = value === 'approved' ? 'Approve' : 'Reject';
+            this.$q.dialog({
+                title: `${promptName} meal`,
+                message: 'Write a comment about this meal to the patient',
+                prompt: {
+                    model: '',
+                    type: 'textarea',
+                },
+                cancel: true,
+                persistent: true,
+            }).onOk(async (comment) => {
+                const response = await this.$api.put(`meal/${mealId}/feedback`, {
+                    feedback: comment,
+                    status: value,
+                });
+                if (response.status === 200) {
+                    this.$q.notify({
+                        message: 'Review successfully submitted.',
+                        type: 'positive',
+                    });
+                    this.loadData();
+                }
+            });
+        },
     },
 };
 </script>
