@@ -12,6 +12,18 @@
                             <div class="text-h6">Posted on: {{ meal.time_created }}</div>
                             <div class="row no-wrap justify-between">
                                 <div class="column q-pr-md">
+                                    <div class="row items-baseline" v-if="meal.planned_meal.name">
+                                        <div class="q-pr-xs text-body1 text-weight-bold">
+                                            Name:
+                                        </div>
+                                        {{ meal.planned_meal.name }}
+                                    </div>
+                                    <div class="row items-baseline">
+                                        <div class="q-pr-xs text-body1 text-weight-bold">
+                                            Type:
+                                        </div>
+                                        {{ mealTypes[meal.planned_meal.meal_type] }}
+                                    </div>
                                     <template v-if="meal.items.length > 0">
                                         <div class="q-pr-xs text-body1 text-weight-bold">
                                             Items:
@@ -73,6 +85,13 @@ export default {
                 approved: 'Approved',
                 rejected: 'Rejected',
                 pending_review: 'Pending Review',
+            },
+            mealTypes: {
+                breakfast: 'Breakfast',
+                morning_snack: 'Morning Snack',
+                lunch: 'Lunch',
+                afternoon_snack: 'Afternoon Snack',
+                dinner: 'Dinner',
             },
         };
     },
